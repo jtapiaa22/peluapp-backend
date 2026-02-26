@@ -1,16 +1,8 @@
-const express    = require('express')
-const router     = express.Router()
-const nodemailer = require('nodemailer')
+const express = require('express')
+const router  = express.Router()
+const sgMail  = require('@sendgrid/mail')
 
-const transporter = nodemailer.createTransport({
-  host:   'smtp.gmail.com',
-  port:   2525,
-  secure: false,
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS
-  }
-})
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 router.post('/email', async (req, res) => {
   const { id, nombre, peluqueria, email, desde, hasta, licencia_b64 } = req.body
@@ -18,9 +10,9 @@ router.post('/email', async (req, res) => {
   if (!email) return res.status(400).json({ error: 'El cliente no tiene email registrado' })
 
   try {
-    await transporter.sendMail({
-      from:    `"PeluApp" <${process.env.GMAIL_USER}>`,
+    await sgMail.send({
       to:      email,
+      from:    process.env.GMAIL_USER,
       subject: `Tu licencia de PeluApp — válida hasta ${hasta}`,
       html: `
         <div style="font-family: sans-serif; max-width: 480px; margin: auto; padding: 32px; background: #f9f9f9; border-radius: 12px;">
@@ -43,14 +35,15 @@ router.post('/email', async (req, res) => {
       `,
       attachments: [{
         filename:    `licencia-${desde}-al-${hasta}.lic`,
-        content:     licencia_b64,
-        contentType: 'text/plain'
+        content:     Buffer.from(licencia_b64).toString('base64'),
+        type:        'text/plain',
+        disposition: 'attachment'
       }]
     })
 
     res.json({ ok: true })
   } catch (e) {
-    console.error(e)
+    console.error(e?.response?.body || e)
     res.status(500).json({ error: 'Error al enviar el email' })
   }
 })
