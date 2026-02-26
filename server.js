@@ -1,30 +1,25 @@
 require('dotenv').config()
 const express    = require('express')
 const cors       = require('cors')
-const clientesRouter  = require('./routes/clientes')
-const licenciasRouter = require('./routes/licencias')
+const clientesRouter       = require('./routes/clientes')
+const licenciasRouter      = require('./routes/licencias')
 const notificacionesRouter = require('./routes/notificaciones')
 
 const app  = express()
 const PORT = process.env.PORT || 3001
 
+// ⚠️ CORS y JSON primero, antes de todo
+app.use(cors())
+app.use(express.json())
+
 app.get('/', (req, res) => {
   res.json({ status: 'ok', message: 'PeluApp backend corriendo 🚀' })
 })
 
-
-app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:4173']
-}))
-
-app.use(express.json())
-
-app.use('/api/clientes',  clientesRouter)
-app.use('/api/licencias', licenciasRouter)
-
+app.use('/api/clientes',       clientesRouter)
+app.use('/api/licencias',      licenciasRouter)
 app.use('/api/notificaciones', notificacionesRouter)
 
-// Dashboard stats
 app.get('/api/stats', (req, res) => {
   const db   = require('./db')
   const hoy  = new Date().toISOString().split('T')[0]
