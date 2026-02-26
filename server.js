@@ -9,7 +9,14 @@ const app  = express()
 const PORT = process.env.PORT || 3001
 
 // ⚠️ CORS y JSON primero, antes de todo
-app.use(cors())
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:4173',
+    'https://peluapp-frontend.vercel.app'  // ← tu URL de Vercel
+  ]
+}))
+
 app.use(express.json())
 
 app.get('/', (req, res) => {
