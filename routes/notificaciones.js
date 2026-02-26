@@ -16,23 +16,21 @@ router.post('/email', async (req, res) => {
       subject: `Tu licencia de PeluApp — válida hasta ${hasta}`,
       html: `
         <div style="font-family: sans-serif; max-width: 480px; margin: auto; padding: 32px; background: #f9f9f9; border-radius: 12px;">
-          <h2 style="color: #7c3aed;">🔑 Tu licencia de PeluApp</h2>
-          <p>Hola <strong>${nombre}</strong>${peluqueria ? ` de <strong>${peluqueria}</strong>` : ''}!</p>
-          <p>Tu licencia está lista. Es válida desde <strong>${desde}</strong> hasta <strong>${hasta}</strong>.</p>
-          <div style="margin: 24px 0; text-align: center;">
-            <a href="${process.env.BACKEND_URL}/api/licencias/${id}/download"
-               style="background: #7c3aed; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px;">
-              📥 Descargar licencia
-            </a>
-          </div>
-          <p style="color: #555; font-size: 13px;">
+            <h2 style="color: #7c3aed;">🔑 Tu licencia de PeluApp</h2>
+            <p>Hola <strong>${nombre}</strong>${peluqueria ? ` de <strong>${peluqueria}</strong>` : ''}!</p>
+            <p>Tu licencia está lista. Es válida desde <strong>${desde}</strong> hasta <strong>${hasta}</strong>.</p>
+            <p style="background: #ede9fe; padding: 16px; border-radius: 8px; color: #5b21b6;">
+            📎 El archivo <strong>.lic</strong> va adjunto a este correo.
+            </p>
+            <p style="color: #555; font-size: 13px;">
             <strong>Instrucciones:</strong><br/>
-            1. Hacé click en el botón para descargar el archivo<br/>
+            1. Descargá el archivo adjunto<br/>
             2. Abrí PeluApp<br/>
             3. En la pantalla de activación, cargá el archivo
-          </p>
+            </p>
         </div>
-      `,
+        `,
+
       attachments: [{
         filename:    `licencia-${desde}-al-${hasta}.lic`,
         content:     Buffer.from(licencia_b64).toString('base64'),
