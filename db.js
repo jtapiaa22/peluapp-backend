@@ -1,28 +1,33 @@
-const Database = require('better-sqlite3')
-const path     = require('path')
+const { Pool } = require('pg')
 
-const db = new Database(path.join(__dirname, 'licencias.db'))
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+})
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS clientes (
-    id           INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre       TEXT NOT NULL,
-    peluqueria   TEXT,
-    whatsapp     TEXT,
-    email        TEXT,
-    notas        TEXT,
-    created_at   TEXT DEFAULT (datetime('now','localtime'))
-  );
+const init = async () => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS clientes (
+      id           SERIAL PRIMARY KEY,
+      nombre       TEXT NOT NULL,
+      peluqueria   TEXT,
+      whatsapp     TEXT,
+      email        TEXT,
+      notas        TEXT,
+      created_at   TIMESTAMP DEFAULT NOW()
+    );
 
-  CREATE TABLE IF NOT EXISTS licencias (
-    id           INTEGER PRIMARY KEY AUTOINCREMENT,
-    cliente_id   INTEGER NOT NULL,
-    desde        TEXT NOT NULL,
-    hasta        TEXT NOT NULL,
-    licencia_b64 TEXT NOT NULL,
-    created_at   TEXT DEFAULT (datetime('now','localtime')),
-    FOREIGN KEY (cliente_id) REFERENCES clientes(id)
-  );
-`)
+    CREATE TABLE IF NOT EXISTS licencias (
+      id           SERIAL PRIMARY KEY,
+      cliente_id   INTEGER NOT NULL REFERENCES clientes(id),
+      desde        TEXT NOT NULL,
+      hasta        TEXT NOT NULL,
+      licencia_b64 TEXT NOT NULL,
+      created_at   TIMESTAMP DEFAULT NOW()
+    );
+  `)
+}
 
-module.exports = db
+init().catch(console.error)
+
+module.exports = pool
