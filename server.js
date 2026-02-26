@@ -13,7 +13,10 @@ app.get('/', (req, res) => {
 })
 
 
-app.use(cors())
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:4173']
+}))
+
 app.use(express.json())
 
 app.use('/api/clientes',  clientesRouter)
